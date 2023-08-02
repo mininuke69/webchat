@@ -1,29 +1,14 @@
 
 
-
 get_cookie();
-get_ip();
+setInterval(updatechatlog, 2000)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-function get_cookie(){
+async function get_cookie(){
     if (document.cookie == "") {
-        req = fetch("/api/cookie")
-        set_cookie_to = req
-        document.cookie = set_cookie_to
-        console.log(set_cookie_to, req)
+        req = await fetch("/api/cookie")
+        document.cookie = await req.json()
     }
 }
 
@@ -52,4 +37,14 @@ async function submitmessage() {
     });
 
     console.log("reply: " + await reply.json());
+}
+
+async function updatechatlog() {
+    console.log("updating chat...")
+
+    const chat = document.getElementById("chatlog")
+
+    let reply = await fetch("/api/chatlog?contenttype=html")
+    chat.innerHTML = await reply.json()
+    
 }
