@@ -26,11 +26,6 @@ async def root(r: Request):
     return FileResponse("html/root.html")
 
 
-@app.get("/chatview")
-async def chatview(r: Request):
-    return HTMLResponse(open("html/chatview.html", "r").read().format(GenerateMessageList()))
-
-
 # JavaScript
 
 @app.get("/js/main.js")
@@ -54,6 +49,7 @@ async def sendmsg(r: Request):
     message_obj = eval(message_bytes.decode())
     message_content, message_date = message_obj["content"], message_obj["date"]
     print(f'message received: "{message_content}", cookie: "{cookie[:6]}...{cookie[-6:]}"')
+    open("db/chatlog.txt", "a").write(message_content + "\n")
     return f'message received: {message_content}'
 
 
@@ -75,4 +71,4 @@ async def chatlog(r: Request, contenttype: str | None = None):
     if contenttype.lower() == "html":
         return GenerateMessageList()
     else:
-        return open("db/chatlog.txt", "r").read().split("\n")
+        return open("db/chatlog.txt", "r").readlines()

@@ -1,7 +1,7 @@
 
 
 get_cookie();
-setInterval(updatechatlog, 2000)
+setInterval(updatechatlog, 3000)
 
 
 
@@ -37,6 +37,7 @@ async function submitmessage() {
     });
 
     console.log("reply: " + await reply.json());
+    updatechatlog()
 }
 
 async function updatechatlog() {
