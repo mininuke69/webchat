@@ -10,14 +10,18 @@ app = FastAPI()
 
 
 
-def ReadDataBase():
-    return open("db/chatlog.txt", "r").readlines()
+def ReadDataBase(roomid: int):
+    try:
+        return open("db/chatlog_{}.txt".format(roomid), "r").readlines()
+    except FileNotFoundError:
+        open("db/chatlog_{}.txt".format(roomid), "w")
+        for _ in range(10): open("db/chatlog_{}.txt".format(roomid), "a").write("\n")
+        return open("db/chatlog_{}.txt".format(roomid), "r").readlines()
 
 
 def WriteDataBase(content: str):
     open("db/chatlog.txt", "a").write(content)
     database_content = open("db/chatlog.txt", "r").readlines()
-    #print(len(database_content), ''.join(database_content[-5:]))
     open("db/chatlog.txt", "w").write(''.join(database_content[-10:]))
 
 
@@ -33,14 +37,23 @@ def GenerateMessageList(chatlog):
 
 @app.get("/")
 async def root(r: Request):
-    return FileResponse("html/chat.html")
+    return FileResponse("html/roomselect.html")
+
+
+@app.get("/room_{roomid}")
+async def room(r: Request, roomid: int):
+    return "wip"
 
 
 # JavaScript
 
-@app.get("/js/main.js")
-async def mainjs(r: Request):
-    return FileResponse("js/main.js")
+@app.get("/js/chat.js")
+async def chatjs(r: Request):
+    return FileResponse("js/chat.js")
+
+@app.get("/js/roomselect.js")
+async def roomselectjs(r: Request):
+    return FileResponse("js/roomselect.js") #####
 
 
 # CSS
@@ -80,7 +93,7 @@ async def ip(r: Request):
     return ip_addr
 
 
-@app.get("/api/chatlog")
+@app.get("/api/chatlog_{roomid}")
 async def chatlog(r: Request, contenttype: str | None = None):
     if contenttype.lower() == "html":
         return GenerateMessageList(ReadDataBase())
