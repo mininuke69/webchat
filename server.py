@@ -33,7 +33,7 @@ def GenerateMessageList(chatlog):
 
 @app.get("/")
 async def root(r: Request):
-    return FileResponse("html/root.html")
+    return FileResponse("html/chat.html")
 
 
 # JavaScript
