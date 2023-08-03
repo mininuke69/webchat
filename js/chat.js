@@ -1,8 +1,9 @@
 
 
 get_cookie();
+const roomid = sessionStorage.getItem("roomid")
 setInterval(updatechatlog, 5000)
-
+updatechatlog()
 
 
 async function get_cookie(){
@@ -23,6 +24,7 @@ async function submitmessage(event) {
 
         let messageitem = {
             content: message,
+            roomid: roomid,
             date: new Date(Date.now()),
         }
 
@@ -39,6 +41,6 @@ async function submitmessage(event) {
 async function updatechatlog() {
     const chat = document.getElementById("chatlog")
 
-    let reply = await fetch("/api/chatlog?contenttype=html")
+    let reply = await fetch("/api/chatlog?contenttype=html&roomid=" + roomid)
     chat.innerHTML = await reply.json()
 }

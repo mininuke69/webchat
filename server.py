@@ -19,10 +19,10 @@ def ReadDataBase(roomid: int):
         return open("db/chatlog_{}.txt".format(roomid), "r").readlines()
 
 
-def WriteDataBase(content: str):
-    open("db/chatlog.txt", "a").write(content)
-    database_content = open("db/chatlog.txt", "r").readlines()
-    open("db/chatlog.txt", "w").write(''.join(database_content[-10:]))
+def WriteDataBase(roomid: int, content: str):
+    open("db/chatlog_{}.txt".format(roomid), "a").write(content)
+    database_content = open("db/chatlog_{}.txt".format(roomid), "r").readlines()
+    open("db/chatlog_{}.txt".format(roomid), "w").write(''.join(database_content[-10:]))
 
 
 def GenerateMessageList(chatlog):
@@ -40,9 +40,9 @@ async def root(r: Request):
     return FileResponse("html/roomselect.html")
 
 
-@app.get("/room_{roomid}")
-async def room(r: Request, roomid: int):
-    return "wip"
+@app.get("/chat")
+async def room(r: Request):
+    return FileResponse("html/chat.html")
 
 
 # JavaScript
@@ -71,11 +71,12 @@ async def sendmsg(r: Request):
     message_bytes: bytes = await r.body()
     message_obj = eval(message_bytes.decode())
     message_content: str = message_obj["content"]
+    roomid: str = message_obj["roomid"]
 
     print(f'message received: "{message_content}", cookie: "{id[:6]}...{id[-6:]}"')
 
     if not message_content == "":
-        WriteDataBase(message_content + "\n")
+        WriteDataBase(roomid, message_content + "\n")
 
     return None
 
@@ -93,9 +94,9 @@ async def ip(r: Request):
     return ip_addr
 
 
-@app.get("/api/chatlog_{roomid}")
-async def chatlog(r: Request, contenttype: str | None = None):
+@app.get("/api/chatlog")
+async def chatlog(r: Request, contenttype: str = None, roomid: str = None):
     if contenttype.lower() == "html":
-        return GenerateMessageList(ReadDataBase())
+        return GenerateMessageList(ReadDataBase(roomid))
     else:
-        return ReadDataBase()
+        return ReadDataBase(roomid)
