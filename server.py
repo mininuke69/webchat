@@ -10,13 +10,23 @@ app = FastAPI()
 
 
 
-def GenerateMessageList():
-    chatlog = open("db/chatlog.txt", "r").read().split("\n")
-    output = "<ul>"
+def ReadDataBase():
+    return open("db/chatlog.txt", "r").readlines()
+
+
+def WriteDataBase(content: str):
+    open("db/chatlog.txt", "a").write(content)
+    database_content = open("db/chatlog.txt", "r").readlines()
+    #print(len(database_content), ''.join(database_content[-5:]))
+    open("db/chatlog.txt", "w").write(''.join(database_content[-10:]))
+
+
+def GenerateMessageList(chatlog):
+    outputHTML = "<ul>"
     for line in chatlog:
-        output += "<li>{}</li>".format(line)
-    output += "</ul>"
-    return output
+        outputHTML += "<li>{}</li>".format(line)
+    outputHTML += "</ul>"
+    return outputHTML
 
 
 # HTML
@@ -37,20 +47,24 @@ async def mainjs(r: Request):
 
 @app.get("/css/style.css")
 async def stylecss(r: Request):
-    return FileResponse(path)
+    return FileResponse("css/style.css")
 
 
 # API
 
 @app.post("/api/sendmsg")
 async def sendmsg(r: Request):
-    cookie = r.cookies["id"]
-    message_bytes = await r.body()
+    id = r.cookies["id"]
+    message_bytes: bytes = await r.body()
     message_obj = eval(message_bytes.decode())
-    message_content, message_date = message_obj["content"], message_obj["date"]
-    print(f'message received: "{message_content}", cookie: "{cookie[:6]}...{cookie[-6:]}"')
-    open("db/chatlog.txt", "a").write(message_content + "\n")
-    return f'message received: {message_content}'
+    message_content: str = message_obj["content"]
+
+    print(f'message received: "{message_content}", cookie: "{id[:6]}...{id[-6:]}"')
+
+    if not message_content == "":
+        WriteDataBase(message_content + "\n")
+
+    return None
 
 
 @app.get("/api/cookie")
@@ -69,6 +83,6 @@ async def ip(r: Request):
 @app.get("/api/chatlog")
 async def chatlog(r: Request, contenttype: str | None = None):
     if contenttype.lower() == "html":
-        return GenerateMessageList()
+        return GenerateMessageList(ReadDataBase())
     else:
-        return open("db/chatlog.txt", "r").readlines()
+        return ReadDataBase()

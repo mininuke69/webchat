@@ -3,12 +3,12 @@
         <meta charset="UTF-8">
         <title>Web chat</title>
         <script src="/js/main.js"></script>
+        <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
         <h1>simple web chat</h1>
         <div id="chatlog"></div>
         
-        <input type="text" name="messagebar" id="messagebar">
-        <input type="button" value="submit" onclick="submitmessage()">
+        <input type="text" name="messagebar" id="messagebar" onkeydown="submitmessage(event)">
     </body>
 </html>

@@ -1,7 +1,7 @@
 
 
 get_cookie();
-setInterval(updatechatlog, 3000)
+setInterval(updatechatlog, 5000)
 
 
 
@@ -12,40 +12,33 @@ async function get_cookie(){
     }
 }
 
-function get_ip(){
-    let ip = fetch("/api/ip")
-    console.log(ip)
-}
 
+async function submitmessage(event) {
+    if (event.keyCode == 13) {
+        console.log("submitting message");
+        
+        const messagebar = document.getElementById("messagebar")
+        let message = messagebar.value;
+        messagebar.value = ""
 
+        let messageitem = {
+            content: message,
+            date: new Date(Date.now()),
+        }
 
-async function submitmessage() {
-    console.log("submitting message");
-    
-    const messagebar = document.getElementById("messagebar")
-    let message = messagebar.value;
+        let reply = await fetch("/api/sendmsg", {
+            method: "POST",
+            headers: {"content-type": "application/json"},
+            body: JSON.stringify(messageitem)
+        });
 
-    let messageitem = {
-        content: message,
-        date: new Date(Date.now()),
+        console.log("reply: " + await reply.json());
     }
-
-    let reply = await fetch("/api/sendmsg", {
-        method: "POST",
-        headers: {"content-type": "application/json"},
-        body: JSON.stringify(messageitem)
-    });
-
-    console.log("reply: " + await reply.json());
-    updatechatlog()
 }
 
 async function updatechatlog() {
-    console.log("updating chat...")
-
     const chat = document.getElementById("chatlog")
 
     let reply = await fetch("/api/chatlog?contenttype=html")
     chat.innerHTML = await reply.json()
-    
 }
