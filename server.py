@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi import Request
 from random import randbytes
 from hashlib import sha256
+from string import ascii_letters
 
 
 app = FastAPI()
@@ -53,7 +54,7 @@ async def chatjs(r: Request):
 
 @app.get("/js/roomselect.js")
 async def roomselectjs(r: Request):
-    return FileResponse("js/roomselect.js") #####
+    return FileResponse("js/roomselect.js")
 
 
 # CSS
@@ -75,8 +76,16 @@ async def sendmsg(r: Request):
 
     print(f'message received: "{message_content}", cookie: "{id[:6]}...{id[-6:]}"')
 
-    if not message_content == "":
-        WriteDataBase(roomid, message_content + "\n")
+    for index, letter in enumerate(message_content): #check is at least one character is not a space
+        if letter in ascii_letters:
+            break
+        if index == len(message_content) - 1:
+            return
+    
+    if len(message_content) > 80:
+            return
+    
+    WriteDataBase(roomid, message_content + "\n")
 
     return None
 
