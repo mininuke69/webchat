@@ -8,21 +8,21 @@ from hashlib import sha256
 
 app = FastAPI()
 
-
+DB_PATH = "db/chatlog_{}.txt"
 
 def ReadDataBase(roomid: int):
     try:
-        return open("db/chatlog_{}.txt".format(roomid), "r").readlines()
+        return open(DB_PATH.format(roomid), "r").readlines()
     except FileNotFoundError:
-        open("db/chatlog_{}.txt".format(roomid), "w")
-        for _ in range(10): open("db/chatlog_{}.txt".format(roomid), "a").write("\n")
-        return open("db/chatlog_{}.txt".format(roomid), "r").readlines()
+        open(DB_PATH.format(roomid), "w")
+        for _ in range(10): open(DB_PATH.format(roomid), "a").write("\n")
+        return open(DB_PATH.format(roomid), "r").readlines()
 
 
 def WriteDataBase(roomid: int, content: str):
-    open("db/chatlog_{}.txt".format(roomid), "a").write(content)
-    database_content = open("db/chatlog_{}.txt".format(roomid), "r").readlines()
-    open("db/chatlog_{}.txt".format(roomid), "w").write(''.join(database_content[-10:]))
+    open(DB_PATH.format(roomid), "a").write(content)
+    database_content = open(DB_PATH.format(roomid), "r").readlines()
+    open(DB_PATH.format(roomid), "w").write(''.join(database_content[-10:]))
 
 
 def GenerateMessageList(chatlog):
